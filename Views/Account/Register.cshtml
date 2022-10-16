@@ -1,0 +1,98 @@
+﻿
+@{
+    ViewBag.Title = "Register";
+}
+
+
+
+@model Final_assignment.Controllers.AccountController
+@{
+
+}
+<div class="container mt-5">
+    <div class="row justify-content-center align-items-center">
+
+        <div class="col-sm-12 col-md-12 col-lg-4">
+            <h1 class="mb-3">Register</h1>
+
+            <form method="post">
+
+                @*@Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                @Html.HiddenFor(model => model.CategoryId)
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.CategoryName, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.CategoryName, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.CategoryName, "", new { @class = "text-danger" })
+                    </div>
+                </div>*@
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                <div class="mb-3">
+                    <label class="form-label" asp-for="Model.Email">Email</label>
+                    <input type="text" asp-for="Model.Email" class="form-control" />
+                 @*   <span asp-validation-for="Model.Email" class="text-danger"></span>*@
+                </div>
+
+                <div class="mb-3">
+
+                    <label class="form-label" asp-for="Model.Password">Password</label>
+                    <input type="password" asp-for=Model.Password class="form-control" />
+                  @*  <span asp-validation-for="Model.Password" class="text-danger"></span>*@
+                </div>
+
+                <div class="mb-3">
+
+                    <label class="form-label" asp-for="Model.ConfirmPassword">Confirm Password</label>
+                    <input type="password" asp-for="Model.ConfirmPassword" class="form-control" />
+                  @*  <span asp-validation-for="Model.ConfirmPassword" class="text-danger"></span>*@
+
+                </div>
+
+                <div class="mb-3">
+
+                    <button type="submit" id="submitbtn" class="btn btn-primary">Register</button>
+                </div>
+
+
+            </form>
+
+        </div>
+
+
+    </div>
+</div>
+
+<script>
+
+
+
+    $(document).ready(function () {
+        function RegFun() {
+            var id = $('#productId').val();
+            var name = $('#productnames').val();
+            var categoryListData = $('#inputCategory').val();
+            var Expdt = $('#Expired').val();
+            //console.log(Expdt);
+            debugger;
+            if (name !='') {
+                $.ajax({
+                type: "POST",
+                    url: '@Url.Action("Create", "Product")',
+                    data: { name: name, Id: id, CategoryId: categoryListData, Expiry: Expdt },
+                success: function (res) {
+                    window.location.href = '@Url.Action("Index", "Product")';
+                }
+            });
+            }
+        }
+        // Submit button
+        $("#submitbtn").click(function () {
+            //debugger/*;*/
+            console.log("Submit Clicked");
+           // RegFun();
+        });
+    });
+
+</script>

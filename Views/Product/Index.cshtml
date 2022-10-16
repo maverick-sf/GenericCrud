@@ -1,0 +1,389 @@
+﻿@using PagedList;
+@using PagedList.Mvc;
+@model IPagedList<Final_assignment.Models.Product>
+@{
+    ViewBag.Title = "Index";
+}
+
+@*//////////////////////////////////////////////////////////////////////////////////////////*@
+@* Jumbotron *@
+
+<div class="container">
+    <div class="jumbotron text-center bg-success text-white h-200">
+        <h2>Product</h2>
+
+    </div>
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+</div>
+
+
+@*//////////////////////////////////////////////////////////////////////////////////////////*@
+
+@* Search *@
+
+<nav class="navbar bg-light">
+    <div class="container-fluid">
+
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal">Add New Product</button>
+        @using (Html.BeginForm())
+        {
+            <p class="d-flex">
+                @Html.TextBox("SearchString", " ", new { @placeholder = "Search", @class = "form-control" })
+                <input type="submit" value="Search" class="btn btn-outline-success ms-2 SearchBtn" />
+            </p>
+        }
+    </div>
+</nav>
+
+@*//////////////////////////////////////////////////////////////////////////////////////////*@
+
+@* Dropdown *@
+
+@using (Html.BeginForm("Index", "Product", FormMethod.Get, new { id = "pageSizeForm" }))
+{
+    <div class="pager">
+        Elements per page :
+        @Html.DropDownList("pageSize")
+
+        <br />
+        Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) OF @Model.PageCount<br />
+
+        @Model.Count of @Model.TotalItemCount elements
+
+
+    </div>
+}
+
+@*//////////////////////////////////////////////////////////////////////////////////////////*@
+
+@* Modal *@
+<div class="modal" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content bg-light">
+
+            <div class="modal-header bg-danger text-light">
+                <h4 class="modal-title">Add New Product</h4>
+                <button type="button" class="btn-close bg-light" data-bs-dismiss="modal"></button>
+            </div>
+
+
+            <div class="modal-body">
+                <form id="myform">
+                    <div class="form-group">
+                        <input type="hidden" id="productId" />
+                        <label for="user">Product :</label>
+                        <input type="text" name="username" id="productnames" style="width:250px;" class="form-control mt-2 col-6">
+                        <br />
+                        @* expiry *@
+                        <label for="Expiry">Expiry Date :</label>
+                        <input type="date" name="Expired" id="Expired" style="width:250px;" class="form-control mt-2 col-6">
+                        <br />
+                        @* Category *@
+                        <div class="col-md-7">
+                            <label for="inputCategory" class="form-label">Category</label>
+                            <select id="inputCategory" class="form-select" name="inputCategory">
+                                @foreach (var item in ViewBag.ListCat)
+                                {
+                                    <option value="@item.Id">@item.Name</option>
+                                }
+                            </select>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer mt-3">
+                        <button type="submit" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        <input id="submitbtn" value="Save" type="submit" class="btn btn-primary">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*//////////////////////////////////////////////////////////////////////////////////////////*@
+
+@* Table *@
+<table class="table border-dark" id="MyTable">
+    <tr>
+        <th>Id</th>
+        <th>
+            @Html.ActionLink("Name", "Index", new { sortOrder = ViewBag.SortByName }, new { @class = "text-dark text-decoration-none" })
+            &varr;
+        </th>
+        <th>
+            @Html.ActionLink("CreatedOn", "Index", new { sortOrder = ViewBag.SortByDate }, new { @class = "text-dark text-decoration-none" })
+
+            &varr;
+        </th>
+        <th>
+            Expiry Date
+
+        </th>
+        <th>Category</th>
+        <th>Operation</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        if (@item.Expiry >= @DateTime.Now.Date)
+        {
+
+
+            <tr>
+                <th> @item.Id</th>
+                <td>
+                    @item.Name
+
+                </td>
+                <td>@item.CreatedDate</td>
+                <td>@item.Expiry</td>
+                <td>@item.Category.Name</td>
+                <td>
+                    <button type="button" class="btn btn-success" onclick="EditFun(@item.Id)" id="SaveBtn">Edit</button>
+                    <button type="button" class="btn btn-danger" onclick="DeleteFun(@item.Id)" id="DeleteBtn">Delete</button>
+                </td>
+            </tr>
+        }
+        else
+        {
+            <tr class="text-danger">
+                <th> @item.Id</th>
+                <td>
+                    @item.Name
+
+                </td>
+                <td>@item.CreatedDate</td>
+                <td>@item.Expiry</td>
+                <td>@item.Category.Name</td>
+                <td>
+                    <button type="button" class="btn btn-success" onclick="EditFun(@item.Id)" id="SaveBtn">Edit</button>
+                    <button type="button" class="btn btn-danger" onclick="DeleteFun(@item.Id)" id="DeleteBtn">Delete</button>
+                </td>
+            </tr>
+        }
+    }
+</table>
+@Html.PagedListPager(Model, page => @Url.Action("Index", new { page, @class = "btn btn-danger pageDesign" }))
+
+
+@*//////////////////////////////////////////////////////////////////////////////////////////*@
+
+@* Delete Modal *@
+<div class="modal" id="DeleteModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header bg-danger text-light">
+                <h4 class="modal-title">Details</h4>
+                <button type="button" class="btn-close bg-light" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <input type="hidden" id="DeleteId" />
+                <div id="modalbody"></div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="deleteFunction()" id="deleteBtn">Delete</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="hiddenProductId" />
+
+@*//////////////////////////////////////////////////////////////////////////////////////////*@
+@* Script *@
+
+<script>
+     //Validation
+
+    $(function () {
+        $("#myform").validate({
+            rules: {
+                username: {
+                    required: true,
+                    minlength: 3,
+                },
+
+                Expired: {
+                    required: true
+
+                },
+                inputCategory: {
+                    required: true
+                }
+
+
+            },
+            messages: {
+                username: {
+                    required: "Please enter the name.",
+                    minlength: "Name contains min 3 cherecter",
+                },
+                Expired: {
+                    required: "Please select the expiry date of the product.",
+                },
+                inputCategory:{
+            required: "Please select the category for the product"
+        }
+            }
+        });
+    });
+
+    @*//////////////////////////////////////////////////////////////////////////////////////////*@
+
+    $(document).ready(function () {
+        function fun() {
+            var id = $('#productId').val();
+            var name = $('#productnames').val();
+            var categoryListData = $('#inputCategory').val();
+            var Expdt = $('#Expired').val();
+            //console.log(Expdt);
+            debugger;
+            if (name !='') {
+                $.ajax({
+                type: "POST",
+                    url: '@Url.Action("Create", "Product")',
+                    data: { name: name, Id: id, CategoryId: categoryListData, Expiry: Expdt },
+                success: function (res) {
+                    window.location.href = '@Url.Action("Index", "Product")';
+                }
+            });
+            }
+        }
+        // Submit button
+        $("#submitbtn").click(function () {
+            //debugger/*;*/
+            fun();
+        });
+
+    });
+
+    @*//////////////////////////////////////////////////////////////////////////////////////////*@
+
+    //Search
+
+    function SearchData() {
+        $.ajax({
+
+            type: "GET",
+            url: '@Url.Action("Edit", "Product")',
+            data: { id: x },
+            success: function (res) {
+                $('#myModal').modal('show');
+                $('#productnames').val(res.Name);
+                $('#productId').val(res.Id);
+            }
+        });
+    }
+    @*//////////////////////////////////////////////////////////////////////////////////////////*@
+
+    //Edit
+        function EditFun(x) {
+            //var Expdt = $('#Expired').val();
+            //var Expdt = $('#Expired').val();
+            //var categoryListData = $('#inputCategory').val();
+
+
+            $.ajax({
+
+                type: "GET",
+                url: '@Url.Action("Edit","Product")',
+                data: { id: x },
+                success: function (res) {
+
+
+                    $('#myModal').modal('show');
+                    $('#productnames').val(res.Name);
+                    $('#productId').val(res.Id);
+                    $('#Expired').val(res.Expiry);
+                    $('#inputCategory').val(res.Category.Name);
+                }
+            });
+
+    }
+
+    @*//////////////////////////////////////////////////////////////////////////////////////////*@
+
+    //Deleting
+        function DeleteFun(x) {
+
+
+            $('#hiddenProductId').val(x);
+            $('#DeleteModal').modal('show');
+            $('#modalbody').html("<h4>Are you sure to delete the product.</h4><br><b class=text-danger></b> ");
+
+    }
+    function deleteFunction() {
+        //var id = $('#DeleteId').val();
+        var id = $('#hiddenProductId').val();
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("DeleteConfirmed", "Product")',
+            data: { id: Number(id) },
+            success: function (res) {
+                window.location.href = '@Url.Action("Index", "Product")';
+            }
+        })
+    }
+
+</script>
+
+
+@*//////////////////////////////////////////////////////////////////////////////////////////*@
+
+<style>
+    .jumbotron {
+        height: 80px !important;
+        margin-bottom: 10px;
+        border-radius: 1px 1px 10px 10px;
+    }
+
+    .pagination a {
+        padding: 10px 15px;
+        background-color: #dc3545;
+        color: white !important;
+        border-radius: 4px;
+        border-color: #198754 !important;
+        text-decoration: none;
+    }
+
+        .pagination a:hover {
+            background-color: #198754 !important;
+            color: white !important;
+        }
+
+        .pagination a:active {
+            background-color: #198754 !important;
+            color: white !important;
+        }
+
+    tr:not(:first-child):hover {
+        background-color: chocolate !important;
+        color: white !important;
+    }
+    .error{
+        color:red;
+    }
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

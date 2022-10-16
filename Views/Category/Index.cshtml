@@ -1,0 +1,412 @@
+﻿@using PagedList;
+@using PagedList.Mvc;
+@model IPagedList<Final_assignment.Models.Category>
+@{
+    ViewBag.Title = "Index";
+    var ProdList = ViewBag.DeleteList as List<Final_assignment.Models.Product>;
+
+
+}
+
+@*//////////////////////////////////////////////////////////////////////////////////////////*@
+
+
+@*jumbotron*@
+<div class="container">
+    <div class="jumbotron text-center bg-success text-white h-200">
+        <h2>Category</h2>
+
+    </div>
+    <script src="~/Scripts/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+</div>
+
+@*//////////////////////////////////////////////////////////////////////////////////////////*@
+
+@* Search *@
+<nav class="navbar bg-light">
+    <div class="container-fluid">
+
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal">Add New Category</button>
+        @using (Html.BeginForm())
+        {
+            <p class="d-flex">
+                @Html.TextBox("SearchString", " ", new { @placeholder = "Search", @class = "form-control" })
+                <input type="submit" value="Search" class="btn btn-outline-success ms-2 " />
+            </p>
+        }
+    </div>
+</nav>
+
+@*//////////////////////////////////////////////////////////////////////////////////////////*@
+@* Add and Edit Modal *@
+<div class="modal" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content bg-light">
+
+
+            <div class="modal-header bg-danger text-light">
+                <h4 class="modal-title">Add New Category</h4>
+                <button type="button" class="btn-close bg-light" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="myform">
+                    <div class="form-group">
+                        <input type="hidden" id="categoryId" />
+                        <label for="user">Category :</label>
+                        <input type="text" name="username" id="categorynames" style="width:250px;" class="form-control mt-2 col-6">
+
+                    </div>
+                    <div class="modal-footer mt-3">
+                        <button type="submit" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        <input id="submitbtn" value="Save" type="submit" class="btn btn-primary">
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+@*//////////////////////////////////////////////////////////////////////////////////////////*@
+
+@* Details Modal *@
+
+<div class="modal" id="DetailsModal">
+    <div class="modal-dialog">
+        <div class="modal-content bg-light">
+
+
+            <div class="modal-header bg-danger text-light">
+                <h4 class="modal-title">Category Details :</h4>
+                <button type="button" class="btn-close bg-light" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="myform">
+                    <div class="form-group">
+                        <label for="userId">Id :</label>
+                        <br /> <input type="text" id="DetailsId" readonly />
+
+                        <br /> <br />  <label for="user">Category :</label>
+                        <input type="text" name="username" id="Detailsnames" style="width:250px;" class="form-control mt-2 col-6" readonly>
+
+                        @*<br/><label for="user">Created on :</label>
+                            <input type="datetime" name="username" id="DetailsDate" style="width:250px;" class="form-control mt-2 col-6" readonly>*@
+
+                    </div>
+                    <div class="modal-footer mt-3">
+                        <button type="submit" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@*//////////////////////////////////////////////////////////////////////////////////////////*@
+
+@* Dropdown *@
+
+@using (Html.BeginForm("Index", "Category", FormMethod.Get, new { id = "pageSizeForm" }))
+{
+    <div class="pager">
+        Elements per page :
+        @Html.DropDownList("pageSize")
+
+        <br />
+        Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) OF @Model.PageCount<br />
+
+        @Model.Count of @Model.TotalItemCount elements
+
+
+    </div>
+}
+
+@*//////////////////////////////////////////////////////////////////////////////////////////*@
+
+@* Table *@
+<table class="table border-dark" id="MyTable">
+    <tr>
+        <th>Id</th>
+        <th>
+            @Html.ActionLink("Name", "Index", new { sortOrder = ViewBag.SortByName }, new { @class = "text-dark text-decoration-none" })
+            &varr;
+        </th>
+        <th>
+            @Html.ActionLink("Created on", "Index", new { sortOrder = ViewBag.SortByDate }, new { @class = "text-dark text-decoration-none" })
+
+            &varr;
+        </th>
+        <th>Operation</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <th> @item.Id</th>
+            <td class="TdName">
+                @item.Name
+
+            </td>
+            <td>@item.CreatedDate</td>
+            <td>
+                <button type="button" class="btn btn-success" onclick="EditFun(@item.Id)" id="SaveBtn">Edit</button>
+                <button type="button" class="btn btn-primary" onclick="DetailFun(@item.Id)" id="DetailBtn">Details</button>
+                <button type="button" class="btn btn-danger" onclick="DeleteFun(@item.Id)" id="DeleteBtn">Delete</button>
+            </td>
+        </tr>
+    }
+</table>
+@Html.PagedListPager(Model, page => @Url.Action("Index", new { page, @class = "btn btn-danger" }))
+
+
+
+@*//////////////////////////////////////////////////////////////////////////////////////////*@
+@* Delete Modal *@
+<div class="modal" id="DeleteModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+
+            <div class="modal-header bg-danger text-light">
+                <h4 class="modal-title">Details</h4>
+                <button type="button" class="btn-close bg-light" data-bs-dismiss="modal"></button>
+            </div>
+
+
+            <div class="modal-body">
+                <input type="hidden" id="DeleteId" />
+                <div id="modalbody"></div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="deleteFunction()" id="deleteBtn">Delete</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@*//////////////////////////////////////////////////////////////////////////////////////////*@
+
+<script>
+
+        //dropdown
+    $(function () {
+        $("#pageSize").change(function () {
+            $("#pageSizeForm").submit();
+            console.log($("#pageSize").val());
+        });
+    });
+
+    @*//////////////////////////////////////////////////////////////////////////////////////////*@
+
+
+    //Validation
+    $(function () {
+        $("#myform").validate({
+            rules: {
+                username: {
+                    required: true,
+                    minlength: 3,
+                }
+            },
+            messages: {
+                username: {
+                    required: "Please enter the name.",
+                    minlength: "Name contains min 3 cherecter",
+                }
+            }
+        });
+    });
+
+    @*//////////////////////////////////////////////////////////////////////////////////////////*@
+
+    $(document).ready(function () {
+
+        function fun() {
+            var id = $('#categoryId').val();
+            var name = $('#categorynames').val();
+            debugger;
+            if (name !='') {
+                $.ajax({
+                type: "POST",
+                url: '@Url.Action("Create", "Category")',
+                    data: { name: $('#categorynames').val(), Id: id },
+                success: function (res) {
+                    window.location.href = '@Url.Action("Index", "Category")';
+                }
+            });
+            }
+        }
+        @*//////////////////////////////////////////////////////////////////////////////////////////*@
+
+        // Submit button
+        $("#submitbtn").click(function () {
+            fun();
+        });
+        $("#deletexxBtn").click(function () {
+        var id = $('#DeleteId').val();
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Delete", "Category")',
+                data: { Id: id },
+                success: function (res) {
+                    window.location.href = '@Url.Action("Index", "Category")';
+                }
+            });
+        });
+    });
+
+    @*//////////////////////////////////////////////////////////////////////////////////////////*@
+
+    //Details
+
+        function DetailFun(x) {
+              $.ajax({
+            type: "GET",
+            url: '@Url.Action("Details", "Category")',
+            data: { id: x },
+            success: function (res) {
+                $('#DetailsModal').modal('show');
+                $('#Detailsnames').val(res.Name);
+                $('#DetailsId').val(res.Id);
+              $('#DetailsDate').val(res.CreatedDate);
+            }
+        });
+
+    }
+
+    @*//////////////////////////////////////////////////////////////////////////////////////////*@
+
+    //search
+
+    function SearchData() {
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("Edit", "Category")',
+            data: { id: x },
+            success: function (res) {
+                $('#myModal').modal('show');
+                $('#categorynames').val(res.Name);
+                $('#categoryId').val(res.Id);
+            }
+        });
+    }
+
+    @*//////////////////////////////////////////////////////////////////////////////////////////*@
+
+    //Edit
+    function EditFun(x) {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("Edit", "Category")',
+                data: { id: x },
+                success: function (res) {
+                    $('#myModal').modal('show');
+                    $('#categorynames').val(res.Name);
+                    $('#categoryId').val(res.Id);
+                }
+            });
+    }
+
+    @*//////////////////////////////////////////////////////////////////////////////////////////*@
+
+    //Deleting
+
+    function DeleteFun(x) {
+
+        $.ajax({
+        type: "GET",
+                url: '@Url.Action("Delete", "Category")',
+                data: { id: x },
+                success: function (res) {
+                    $('#DeleteId').val(res.Id);
+                    $('#DeleteModal').modal('show');
+                    $('#modalbody').html(`<h4>Are you sure to delete.</h4><br><b>Name:</b>   ${res.Name} <br><br> <p style='color:red'><b>Products of this category will be deleted too</p>`);
+
+
+            }
+        });
+    }
+    function deleteFunction() {
+        var id = $('#DeleteId').val();
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("DeleteConfirmed", "Category")',
+            data: { id: id },
+            success: function (res) {
+                window.location.href = '@Url.Action("Index", "Category")';
+            }
+        })
+    }
+
+</script>
+
+
+
+
+
+@*//////////////////////////////////////////////////////////////////////////////////////////*@
+
+<style>
+    .jumbotron {
+        height: 80px !important;
+        margin-bottom: 10px;
+        border-radius: 1px 1px 10px 10px;
+    }
+
+    .pagination a {
+        padding: 10px 15px;
+        margin-right: 4px;
+        background-color: #dc3545;
+        color: white !important;
+        border-radius: 4px;
+        border-color: #198754 !important;
+        text-decoration: none;
+    }
+
+        .pagination a:hover {
+            background-color: #198754 !important;
+            color: white !important;
+        }
+
+        .pagination a:active {
+            background-color: #198754 !important;
+            color: white !important;
+        }
+
+    tr:not(:first-child):hover {
+        background-color: chocolate !important;
+        color: white !important;
+    }
+    .error {
+        color: red;
+    }
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

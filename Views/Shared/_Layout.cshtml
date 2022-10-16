@@ -1,0 +1,42 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - My ASP.NET Application</title>
+    <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link href="https://cdn.datatables.net/1.10.15/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/responsive/2.1.1/css/responsive.bootstrap.min.css" rel="stylesheet" />
+
+    <script src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.15/js/dataTables.bootstrap4.min.js "></script>
+
+    <script src="~/Scripts/modernizr-2.8.3.js"></script>
+</head>
+<body>
+    <div class="container-fluid ">
+        <div class="row " style="height:700px;">
+            <div class="col-3 bg-dark  pt-5 ps-5">
+                <div class="nav flex-column nav-pills col-6 " id="v-pills-tab" role="tablist" aria-orientation="vertical">
+
+                    <a class=" display-1 nav-link text-light fs-4 text-nowrap"  id="v-pills-home-tab" data-toggle="pill" href="#v-pills-home" role="tab" aria-controls="v-pills-home" aria-selected="true">Food Store</a>
+
+                    <a class="mt-3 nav-link btn btn-danger text-light" id="v-pills-profile-tab" data-toggle="pill" href="/Category/Index" role="tab" aria-controls="v-pills-profile" aria-selected="false">Category</a>
+
+                    <a class="mt-3 nav-link btn btn-danger text-light " id="v-pills-messages-tab" data-toggle="pill" href="/Product/Index" role="tab" aria-controls="v-pills-messages" aria-selected="false">Product</a>
+                </div>
+            </div>
+
+            <div class="col-9 bg-light ">
+                @RenderBody()
+
+            </div>
+        </div>
+    </div>
+
+    <script src="~/Scripts/jquery-3.4.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+</body>
+</html>
